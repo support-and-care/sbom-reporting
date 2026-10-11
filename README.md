@@ -2,8 +2,6 @@
 
 Reporting frontend for SBOM data managed in [Dependency-Track](https://dependencytrack.org/).
 
-Built with [Next.js](https://nextjs.org/) (App Router, TypeScript, Tailwind CSS) and shipped as a container image.
-
 ## Prerequisites
 
 - Node.js — version pinned in [`.nvmrc`](.nvmrc) (`nvm use`)
