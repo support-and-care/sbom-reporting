@@ -5,7 +5,7 @@ export default function Home() {
         Support &amp; Care
       </p>
       <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-        SBOM Reporting
+        Release Prism
       </h1>
       <p className="max-w-2xl text-lg leading-8 text-foreground/70">
         Reporting frontend for software bill of materials data managed in
