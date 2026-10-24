@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   build:
-    name: Lint, type check and build
+    name: Format, lint, type check and build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -28,6 +28,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Check formatting
+        run: pnpm format:check
 
       - name: Lint
         run: pnpm lint
