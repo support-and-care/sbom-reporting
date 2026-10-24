@@ -10,11 +10,11 @@ export function SectionHeader({ id, title, intro }: SectionHeaderProps) {
       <div>
         <span
           aria-hidden
-          className="mb-6 block h-1 w-16 rounded-full bg-blue"
+          className="bg-blue mb-6 block h-1 w-16 rounded-full"
         />
         <h2
           id={id}
-          className="text-3xl leading-tight font-light sm:text-4xl lg:text-section"
+          className="lg:text-section text-3xl leading-tight font-light sm:text-4xl"
         >
           {title}
         </h2>

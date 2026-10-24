@@ -17,13 +17,13 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-| Command          | Description                          |
-| ---------------- | ------------------------------------ |
-| `pnpm dev`       | Start the development server         |
-| `pnpm build`     | Create a production build            |
-| `pnpm start`     | Start the production server          |
-| `pnpm lint`      | Run ESLint                           |
-| `pnpm typecheck` | Generate route types and run `tsc`   |
+| Command          | Description                        |
+| ---------------- | ---------------------------------- |
+| `pnpm dev`       | Start the development server       |
+| `pnpm build`     | Create a production build          |
+| `pnpm start`     | Start the production server        |
+| `pnpm lint`      | Run ESLint                         |
+| `pnpm typecheck` | Generate route types and run `tsc` |
 
 ## Container
 
