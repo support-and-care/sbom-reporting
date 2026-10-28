@@ -15,8 +15,6 @@ export type HowItWorksStep = {
 
 export const snapshotDate = "2026-10-20";
 
-export const sbomExplainerUrl = "#";
-
 export const trackedProjects: TrackedProject[] = [
   {
     slug: "hiero",

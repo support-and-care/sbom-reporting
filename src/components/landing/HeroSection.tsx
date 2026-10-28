@@ -1,8 +1,9 @@
 import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SearchField } from "@/components/ui/SearchField";
 import { routes } from "@/config/site";
-import { sbomExplainerUrl, snapshotDate } from "@/content/landing";
+import { snapshotDate } from "@/content/landing";
 import { formatDate } from "@/lib/format";
 
 export function HeroSection() {
@@ -22,13 +23,13 @@ export function HeroSection() {
       </div>
 
       <div className="flex w-full max-w-160 flex-col items-center gap-8">
-        <a
-          href={sbomExplainerUrl}
+        <Link
+          href={routes.sbomExplainer}
           className="flex items-center gap-1.5 p-2.5 text-xl tracking-display text-blue-700 hover:underline"
         >
           New to SBOMs? 2-minute explainer
           <ArrowUpRight className="size-6 shrink-0" />
-        </a>
+        </Link>
 
         <form
           role="search"

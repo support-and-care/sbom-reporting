@@ -6,6 +6,7 @@ export type NavLink = {
 export const routes = {
   home: "/",
   search: "/search",
+  sbomExplainer: "/what-is-an-sbom",
   project: (slug: string) => `/projects/${slug}`,
 };
 
