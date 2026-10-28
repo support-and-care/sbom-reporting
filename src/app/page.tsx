@@ -1,16 +1,16 @@
-export default function Home() {
+import { HeroSection } from "@/components/landing/HeroSection";
+import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
+import { ProjectsSection } from "@/components/landing/ProjectsSection";
+
+export default function HomePage() {
   return (
-    <main className="mx-auto flex w-full max-w-screen-xl flex-1 flex-col justify-center gap-6 px-6 py-24 sm:px-12">
-      <p className="text-sm uppercase tracking-widest text-foreground/60">
-        Support &amp; Care
-      </p>
-      <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-        Release Prism
-      </h1>
-      <p className="max-w-2xl text-lg leading-8 text-foreground/70">
-        Reporting frontend for software bill of materials data managed in
-        Dependency-Track.
-      </p>
-    </main>
+    <>
+      <HeroSection />
+      <div className="mx-auto mt-20 mb-43 flex w-full max-w-288 flex-col px-6 xl:px-0">
+        <ProjectsSection />
+        <hr className="mt-23 mb-10 border-neutral-600 xl:-mx-12" />
+        <HowItWorksSection />
+      </div>
+    </>
   );
 }
