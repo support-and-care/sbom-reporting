@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { MAX_QUERY_LENGTH } from "@/lib/search-params";
 import { cn } from "@/lib/utils";
 
 type SearchFieldSize = "compact" | "large";
@@ -7,6 +8,7 @@ type SearchFieldSize = "compact" | "large";
 type SearchFieldProps = {
   label: string;
   placeholder: string;
+  defaultValue?: string;
   size?: SearchFieldSize;
   className?: string;
 };
@@ -21,6 +23,7 @@ const inputStyles: Record<SearchFieldSize, string> = {
 export function SearchField({
   label,
   placeholder,
+  defaultValue,
   size = "large",
   className,
 }: SearchFieldProps) {
@@ -32,6 +35,8 @@ export function SearchField({
         type="search"
         name="q"
         placeholder={placeholder}
+        defaultValue={defaultValue}
+        maxLength={MAX_QUERY_LENGTH}
         className={cn(
           "rounded-pill pr-5 pl-14.5 shadow-none",
           inputStyles[size],
