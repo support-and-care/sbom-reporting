@@ -2,6 +2,7 @@ import "server-only";
 
 import { dtGetAll } from "@/lib/dt/client";
 import type { DtConciseProject, DtProjectMetrics } from "@/lib/dt/types";
+import type { ArtifactSuggestion } from "@/lib/suggestions";
 import { latestVersion } from "@/lib/versions";
 
 // Dependency-Track stores every released version of an artifact as its own
@@ -95,6 +96,18 @@ function relevance(name: string, query: string): number {
   return 2;
 }
 
+function rankArtifacts(
+  projects: DtConciseProject[],
+  query: string,
+): ArtifactSearchResult[] {
+  const normalizedQuery = query.toLowerCase();
+  return groupByArtifact(projects).sort(
+    (a, b) =>
+      relevance(a.name, normalizedQuery) - relevance(b.name, normalizedQuery) ||
+      a.name.localeCompare(b.name),
+  );
+}
+
 export async function searchArtifacts(
   query: string,
   page: number,
@@ -108,12 +121,7 @@ export async function searchArtifacts(
       includeMetrics: true,
     },
   );
-  const normalizedQuery = query.toLowerCase();
-  const artifacts = groupByArtifact(projects).sort(
-    (a, b) =>
-      relevance(a.name, normalizedQuery) - relevance(b.name, normalizedQuery) ||
-      a.name.localeCompare(b.name),
-  );
+  const artifacts = rankArtifacts(projects, query);
 
   const pageCount = Math.max(
     Math.ceil(artifacts.length / RESULTS_PAGE_SIZE),
@@ -129,4 +137,23 @@ export async function searchArtifacts(
     pageCount,
     truncated,
   };
+}
+
+/** Best matching artifacts for type-ahead, from the first page of matches only. */
+export async function suggestArtifacts(
+  query: string,
+  limit: number,
+): Promise<ArtifactSuggestion[]> {
+  const { items: projects } = await dtGetAll<DtConciseProject>(
+    "/v1/project/concise",
+    { searchText: query, sortName: "name", sortOrder: "asc" },
+    { maxPages: 1 },
+  );
+  return rankArtifacts(projects, query)
+    .slice(0, limit)
+    .map(({ name, group, latest }) => ({
+      name,
+      group,
+      latestVersion: latest.version,
+    }));
 }
