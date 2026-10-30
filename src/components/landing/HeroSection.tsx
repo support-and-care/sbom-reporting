@@ -1,7 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { SearchField } from "@/components/ui/SearchField";
-import { routes } from "@/config/site";
+import { ArtifactSearchForm } from "@/components/search/ArtifactSearchForm";
 import { sbomExplainerUrl, snapshotDate } from "@/content/landing";
 import { formatDate } from "@/lib/format";
 
@@ -30,23 +28,7 @@ export function HeroSection() {
           <ArrowUpRight className="size-6 shrink-0" />
         </a>
 
-        <form
-          role="search"
-          action={routes.search}
-          className="flex w-full flex-col gap-6 sm:flex-row sm:items-center"
-        >
-          <SearchField
-            label="Search an artifact"
-            placeholder="search an artifact, e.g. maven-core..."
-            className="flex-1"
-          />
-          <Button
-            type="submit"
-            className="h-17.5 rounded-pill px-2.5 text-2xl font-bold hover:bg-blue-800 sm:w-34"
-          >
-            Search
-          </Button>
-        </form>
+        <ArtifactSearchForm />
 
         <p className="text-base text-neutral-700">
           all data from snapshot:{" "}
