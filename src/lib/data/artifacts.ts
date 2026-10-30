@@ -7,7 +7,7 @@ import { latestVersion } from "@/lib/versions";
 // Dependency-Track stores every released version of an artifact as its own
 // project, so projects are grouped by artifact here.
 
-export const RESULTS_PAGE_SIZE = 20;
+const RESULTS_PAGE_SIZE = 20;
 
 /** Identifies an artifact across all of its versions. */
 export function artifactKey(project: {
@@ -24,7 +24,7 @@ export type VulnerabilityCounts = {
   low: number;
 };
 
-export type ArtifactVersion = {
+type ArtifactVersion = {
   uuid: string;
   version: string;
   vulnerabilities: VulnerabilityCounts;
