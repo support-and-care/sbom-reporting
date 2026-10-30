@@ -30,6 +30,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `pnpm start`     | Start the production server        |
 | `pnpm lint`      | Run ESLint                         |
 | `pnpm typecheck` | Generate route types and run `tsc` |
+| `pnpm test`      | Run the unit tests (Vitest)        |
 
 ## Container
 
