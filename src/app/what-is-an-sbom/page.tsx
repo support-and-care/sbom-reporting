@@ -9,9 +9,14 @@ export const metadata: Metadata = {
     "A two-minute introduction to software bills of materials: what they contain, why they matter and how Release Prism uses them.",
 };
 
+const cycloneDxSpecUrl = "https://cyclonedx.org/specification/overview";
+const spdxSpecUrl = "https://spdx.github.io/spdx-spec";
+
+const inlineLinkStyles = "text-blue-700 underline-offset-4 hover:underline";
+
 const furtherReading = [
-  { href: "https://cyclonedx.org", label: "CycloneDX" },
-  { href: "https://spdx.dev", label: "SPDX" },
+  { href: cycloneDxSpecUrl, label: "CycloneDX specification" },
+  { href: spdxSpecUrl, label: "SPDX specification" },
   { href: "https://dependencytrack.org", label: "OWASP Dependency-Track" },
   {
     href: "https://www.cisa.gov/sbom",
@@ -65,8 +70,8 @@ export default function SbomExplainerPage() {
           <ul className="flex list-disc flex-col gap-2 pl-6">
             <li>its name and version</li>
             <li>
-              a unique identifier, usually a Package URL such as{" "}
-              <code className="rounded-md bg-neutral-50 px-1.5 py-0.5 text-base break-all">
+              a unique identifier, usually a Package URL such as
+              <code className="mt-1 block w-fit rounded-md bg-neutral-50 px-1.5 py-0.5 text-base break-all">
                 pkg:maven/org.apache.maven/maven-core@3.9.9
               </code>
             </li>
@@ -89,10 +94,17 @@ export default function SbomExplainerPage() {
 
         <ArticleSection title="Two common formats">
           <p>
-            SBOMs are usually written in one of two open standards: CycloneDX,
-            maintained by OWASP, and SPDX, maintained by the Linux Foundation
-            and published as ISO/IEC 5962. Both are plain JSON or XML files that
-            tools can read, compare and check automatically.
+            SBOMs are usually written in one of two open standards:{" "}
+            <a href={cycloneDxSpecUrl} className={inlineLinkStyles}>
+              CycloneDX
+            </a>
+            , maintained by OWASP, and{" "}
+            <a href={spdxSpecUrl} className={inlineLinkStyles}>
+              SPDX
+            </a>
+            , maintained by the Linux Foundation and published as ISO/IEC 5962.
+            Both are plain JSON or XML files that tools can read, compare and
+            check automatically.
           </p>
         </ArticleSection>
 
@@ -101,12 +113,12 @@ export default function SbomExplainerPage() {
             How Release Prism uses them
           </h2>
           <p>
-            Open Elements generates SBOMs for the open-source projects it tracks
-            and analyzes them with OWASP Dependency-Track, which checks every
-            component against public vulnerability databases. Release Prism
-            shows the results as point-in-time snapshots: pick an artifact and a
-            version to see its dependencies, licenses and known vulnerabilities,
-            or download the SBOM file itself.
+            Open Elements collects the SBOMs of the open-source projects it
+            tracks and analyzes them with OWASP Dependency-Track, which checks
+            every component against public vulnerability databases. Release
+            Prism shows the results as point-in-time snapshots: pick an artifact
+            and a version to see its dependencies, licenses and known
+            vulnerabilities, or download the SBOM file itself.
           </p>
           <Button
             asChild
@@ -120,10 +132,7 @@ export default function SbomExplainerPage() {
           <ul className="flex flex-col gap-2">
             {furtherReading.map((link) => (
               <li key={link.href}>
-                <a
-                  href={link.href}
-                  className="text-blue-700 underline-offset-4 hover:underline"
-                >
+                <a href={link.href} className={inlineLinkStyles}>
                   {link.label}
                 </a>
               </li>
