@@ -47,7 +47,7 @@ export type ArtifactSearchPage = {
   truncated: boolean;
 };
 
-function toVulnerabilityCounts(
+export function toVulnerabilityCounts(
   metrics: DtProjectMetrics | null | undefined,
 ): VulnerabilityCounts {
   return {

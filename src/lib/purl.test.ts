@@ -1,5 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { purlNamespace } from "./purl";
+import { purlNamespace, purlType } from "./purl";
+
+describe("purlType", () => {
+  it("returns the lower-cased type of a purl", () => {
+    expect(purlType("pkg:maven/org.apache.maven/maven@3.9.11?type=pom")).toBe(
+      "maven",
+    );
+    expect(purlType("pkg:PyPI/requests@2.31.0")).toBe("pypi");
+  });
+
+  it("returns undefined when there is no purl", () => {
+    expect(purlType("not-a-purl")).toBeUndefined();
+    expect(purlType(null)).toBeUndefined();
+  });
+});
 
 describe("purlNamespace", () => {
   it("returns the namespace of a Maven purl", () => {

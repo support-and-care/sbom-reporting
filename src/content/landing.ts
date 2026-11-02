@@ -1,11 +1,15 @@
-// Static placeholder content until the Dependency-Track integration provides live data.
+// Static landing page content and settings; report data comes from Dependency-Track (see `@/lib/data`).
 
 export type HowItWorksStep = {
   title: string;
   description: string;
 };
 
-export const snapshotDate = "2026-10-20";
+/** Artifact whose latest stable version is shown in the hero's package report. */
+export const featuredArtifact = {
+  name: "maven",
+  purlNamespace: "org.apache.maven",
+};
 
 export const sbomExplainerUrl = "#";
 

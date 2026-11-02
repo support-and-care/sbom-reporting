@@ -1,4 +1,14 @@
 /**
+ * Type of a Package URL, e.g. `pkg:maven/org.apache.maven/maven@3.9.11` →
+ * `maven`. `undefined` if the value is not a Package URL.
+ */
+export function purlType(purl: string | null | undefined): string | undefined {
+  if (!purl?.startsWith("pkg:")) return undefined;
+  const [type] = purl.slice("pkg:".length).split("/");
+  return type ? type.toLowerCase() : undefined;
+}
+
+/**
  * Namespace of a Package URL, e.g.
  * `pkg:maven/org.apache.maven.plugins/maven-clean-plugin@3.5.0?type=maven-plugin`
  * → `org.apache.maven.plugins`. `undefined` if the purl has no namespace.

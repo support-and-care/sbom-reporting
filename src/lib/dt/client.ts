@@ -46,7 +46,7 @@ function config() {
  * Performs an authenticated GET against the Dependency-Track REST API.
  * The API key is read from the environment and never sent to the browser.
  */
-async function dtGet<T>(
+export async function dtGet<T>(
   path: string,
   query: Record<string, QueryValue> = {},
 ): Promise<DtResponse<T>> {

@@ -1,15 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { SearchField } from "@/components/ui/SearchField";
+import { SearchField, type SearchFieldSize } from "@/components/ui/SearchField";
 import { routes } from "@/config/site";
 import { cn } from "@/lib/utils";
 
 type ArtifactSearchFormProps = {
   defaultQuery?: string;
+  size?: Extract<SearchFieldSize, "large" | "hero">;
   className?: string;
 };
 
 export function ArtifactSearchForm({
   defaultQuery,
+  size = "large",
   className,
 }: ArtifactSearchFormProps) {
   return (
@@ -25,6 +27,7 @@ export function ArtifactSearchForm({
         label="Search an artifact"
         placeholder="search an artifact, e.g. maven-core..."
         defaultValue={defaultQuery}
+        size={size}
         className="flex-1"
       />
       <Button

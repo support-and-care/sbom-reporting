@@ -8,7 +8,7 @@ import { MAX_QUERY_LENGTH } from "@/lib/search-params";
 import type { ArtifactSuggestion } from "@/lib/suggestions";
 import { cn } from "@/lib/utils";
 
-type SearchFieldSize = "compact" | "large";
+export type SearchFieldSize = "compact" | "large" | "hero";
 
 type SearchFieldProps = {
   label: string;
@@ -23,11 +23,13 @@ const inputStyles: Record<SearchFieldSize, string> = {
     "h-14 border-neutral-300 text-xl placeholder:text-neutral-500 md:text-xl",
   large:
     "h-16.5 border-blue-200 bg-neutral-0 text-base placeholder:text-neutral-400 md:text-base",
+  hero: "h-16 border-transparent bg-neutral-0 text-base text-neutral-900 placeholder:text-neutral-600 focus-visible:ring-blue-300/60 md:text-base",
 };
 
 const listboxStyles: Record<SearchFieldSize, string> = {
   compact: "right-0 w-80",
   large: "left-0 w-full",
+  hero: "left-0 w-full",
 };
 
 /**
