@@ -12,10 +12,16 @@ Reporting frontend for SBOM data managed in [Dependency-Track](https://dependenc
 
 ```bash
 pnpm install
+cp .env.example .env.local   # set DT_API_KEY
 pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+| Variable     | Description                                                            |
+| ------------ | ---------------------------------------------------------------------- |
+| `DT_API_URL` | Dependency-Track API server                                            |
+| `DT_API_KEY` | API key with the `VIEW_PORTFOLIO` permission (read on the server only) |
 
 | Command          | Description                        |
 | ---------------- | ---------------------------------- |
@@ -24,6 +30,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `pnpm start`     | Start the production server        |
 | `pnpm lint`      | Run ESLint                         |
 | `pnpm typecheck` | Generate route types and run `tsc` |
+| `pnpm test`      | Run the unit tests (Vitest)        |
 
 ## Container
 
@@ -31,7 +38,7 @@ The app uses Next.js [standalone output](https://nextjs.org/docs/app/api-referen
 
 ```bash
 docker build -t sbom-reporting .
-docker run --rm -p 3000:3000 sbom-reporting
+docker run --rm -p 3000:3000 -e DT_API_URL=... -e DT_API_KEY=... sbom-reporting
 ```
 
 The container listens on port `3000` and exposes a health endpoint at `/api/health`.

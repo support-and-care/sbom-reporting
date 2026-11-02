@@ -1,36 +1,15 @@
-// Static placeholder content until the Dependency-Track integration provides live data.
-
-export type TrackedProject = {
-  slug: string;
-  name: string;
-  description: string;
-  highlights: string;
-  artifactCount: number;
-};
+// Static landing page content and settings; report data comes from Dependency-Track (see `@/lib/data`).
 
 export type HowItWorksStep = {
   title: string;
   description: string;
 };
 
-export const snapshotDate = "2026-10-20";
-
-export const trackedProjects: TrackedProject[] = [
-  {
-    slug: "hiero",
-    name: "Hiero",
-    description: "Open-source DLT — Hiero SDKs and services",
-    highlights: "Java · consensus node · SDKs",
-    artifactCount: 312,
-  },
-  {
-    slug: "maven",
-    name: "Maven",
-    description: "Apache Maven — build system components",
-    highlights: "maven-core · resolver · plugins",
-    artifactCount: 1982,
-  },
-];
+/** Artifact whose latest stable version is shown in the hero's package report. */
+export const featuredArtifact = {
+  name: "maven",
+  purlNamespace: "org.apache.maven",
+};
 
 export const howItWorksSteps: HowItWorksStep[] = [
   { title: "1 · Pick a project", description: "or search an artifact" },

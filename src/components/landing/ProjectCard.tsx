@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { routes } from "@/config/site";
-import type { TrackedProject } from "@/content/landing";
+import type { TrackedProjectOverview } from "@/lib/data/projects";
 import { formatNumber } from "@/lib/format";
 
 type ProjectCardProps = {
-  project: TrackedProject;
+  project: TrackedProjectOverview;
 };
 
 export function ProjectCard({ project }: ProjectCardProps) {
@@ -19,7 +19,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <span className="text-xl">{project.description}</span>
         <span className="text-xl">{project.highlights}</span>
         <span className="text-xl font-bold text-blue-700">
-          {formatNumber(project.artifactCount)} artifacts →
+          {formatNumber(project.artifactCount)}{" "}
+          {project.artifactCount === 1 ? "artifact" : "artifacts"} →
         </span>
       </span>
     </Link>

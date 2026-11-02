@@ -1,58 +1,91 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { SearchField } from "@/components/ui/SearchField";
+import { Suspense } from "react";
+import { PackageReportCard } from "@/components/landing/PackageReportCard";
+import { ArtifactSearchForm } from "@/components/search/ArtifactSearchForm";
 import { routes } from "@/config/site";
-import { snapshotDate } from "@/content/landing";
+import {
+  getFeaturedPackageReport,
+  getLatestSnapshotDate,
+} from "@/lib/data/report";
+import { loadFromDt } from "@/lib/dt/client";
 import { formatDate } from "@/lib/format";
+
+const snapshotNoteStyles = "mt-7.5 text-base text-neutral-0";
+const reportCardStyles = "hidden xl:block";
+
+async function SnapshotNote() {
+  const snapshotDate = await loadFromDt(getLatestSnapshotDate);
+  if (!snapshotDate) return null;
+
+  return (
+    <p className={snapshotNoteStyles}>
+      all data from snapshot:{" "}
+      <time dateTime={snapshotDate}>{formatDate(snapshotDate)}</time>
+    </p>
+  );
+}
+
+async function FeaturedPackageReport() {
+  const report = await loadFromDt(getFeaturedPackageReport);
+  return (
+    <PackageReportCard
+      report={report ?? "unavailable"}
+      className={reportCardStyles}
+    />
+  );
+}
 
 export function HeroSection() {
   return (
-    <section className="flex min-h-147 flex-col items-center justify-center gap-6 bg-blue-50 px-5 py-16 text-center">
-      <div className="flex flex-col items-center gap-4">
-        <h1 className="max-w-144 font-display text-4xl font-bold tracking-display text-blue-700 sm:text-5xl">
-          Know what&apos;s inside the software you use
-        </h1>
-        <div className="flex max-w-236 flex-col gap-1.5 text-xl tracking-display text-neutral-700 sm:text-2xl">
-          <p>
-            Dependency and vulnerability reports the open-source projects Open
-            Elements tracks.
+    <section className="bg-blue-900 text-neutral-0">
+      <div className="mx-auto flex min-h-147 w-full max-w-360 items-center justify-between gap-10 px-6 py-12 sm:px-15.5 xl:pr-16">
+        <div className="flex w-full max-w-157 flex-col">
+          <h1 className="flex flex-col gap-1 font-display text-4xl font-bold sm:gap-2 sm:text-5xl">
+            <span>Know what your</span>
+            <span>
+              software <span className="text-blue-500">depends on.</span>
+            </span>
+          </h1>
+
+          <p className="mt-11.5 max-w-134 text-xl">
+            <span className="block text-[#d9daf4]">
+              Explore software bills of materials, dependencies,
+            </span>
+            <span className="block tracking-display text-neutral-100">
+              and vulnerability reports the open-source projects Open Elements
+              tracks.
+            </span>
           </p>
-          <p>Point-in-time snapshots, openly shared with everyone.</p>
-        </div>
-      </div>
 
-      <div className="flex w-full max-w-160 flex-col items-center gap-8">
-        <Link
-          href={routes.sbomExplainer}
-          className="flex items-center gap-1.5 p-2.5 text-xl tracking-display text-blue-700 hover:underline"
-        >
-          New to SBOMs? 2-minute explainer
-          <ArrowUpRight className="size-6 shrink-0" />
-        </Link>
-
-        <form
-          role="search"
-          action={routes.search}
-          className="flex w-full flex-col gap-6 sm:flex-row sm:items-center"
-        >
-          <SearchField
-            label="Search an artifact"
-            placeholder="search an artifact, e.g. maven-core..."
-            className="flex-1"
-          />
-          <Button
-            type="submit"
-            className="h-17.5 rounded-pill px-2.5 text-2xl font-bold hover:bg-blue-800 sm:w-34"
+          <Link
+            href={routes.sbomExplainer}
+            className="mt-7.5 flex w-fit items-center gap-3 py-2.5 text-xl tracking-display text-blue-300 hover:underline"
           >
-            Search
-          </Button>
-        </form>
+            New to SBOMs? 2-minute explainer
+            <ArrowUpRight className="size-6 shrink-0" />
+          </Link>
 
-        <p className="text-base text-neutral-700">
-          all data from snapshot:{" "}
-          <time dateTime={snapshotDate}>{formatDate(snapshotDate)}</time>
-        </p>
+          <ArtifactSearchForm size="hero" className="mt-8.5 sm:gap-3.5" />
+
+          <Suspense
+            fallback={
+              <p aria-hidden className={`${snapshotNoteStyles} invisible`}>
+                all data from snapshot: …
+              </p>
+            }
+          >
+            <SnapshotNote />
+          </Suspense>
+        </div>
+
+        <Suspense
+          fallback={
+            <PackageReportCard report="loading" className={reportCardStyles} />
+          }
+        >
+          <FeaturedPackageReport />
+        </Suspense>
       </div>
     </section>
   );

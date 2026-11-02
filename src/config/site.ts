@@ -7,6 +7,7 @@ export const routes = {
   home: "/",
   search: "/search",
   sbomExplainer: "/what-is-an-sbom",
+  searchSuggestions: "/api/search/suggestions",
   project: (slug: string) => `/projects/${slug}`,
 };
 
