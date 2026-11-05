@@ -11,8 +11,6 @@ export const featuredArtifact = {
   purlNamespace: "org.apache.maven",
 };
 
-export const sbomExplainerUrl = "#";
-
 export const howItWorksSteps: HowItWorksStep[] = [
   { title: "1 · Pick a project", description: "or search an artifact" },
   { title: "2 · Open an artifact", description: "pick the version you use" },

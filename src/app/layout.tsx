@@ -6,7 +6,10 @@ import { lato, montserrat } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: siteConfig.name,
+  title: {
+    default: siteConfig.name,
+    template: `%s · ${siteConfig.name}`,
+  },
   description: siteConfig.description,
 };
 

@@ -1,8 +1,9 @@
 import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 import { Suspense } from "react";
 import { PackageReportCard } from "@/components/landing/PackageReportCard";
 import { ArtifactSearchForm } from "@/components/search/ArtifactSearchForm";
-import { sbomExplainerUrl } from "@/content/landing";
+import { routes } from "@/config/site";
 import {
   getFeaturedPackageReport,
   getLatestSnapshotDate,
@@ -57,13 +58,13 @@ export function HeroSection() {
             </span>
           </p>
 
-          <a
-            href={sbomExplainerUrl}
+          <Link
+            href={routes.sbomExplainer}
             className="mt-7.5 flex w-fit items-center gap-3 py-2.5 text-xl tracking-display text-blue-300 hover:underline"
           >
             New to SBOMs? 2-minute explainer
             <ArrowUpRight className="size-6 shrink-0" />
-          </a>
+          </Link>
 
           <ArtifactSearchForm size="hero" className="mt-8.5 sm:gap-3.5" />
 
