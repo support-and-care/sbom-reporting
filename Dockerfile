@@ -1,4 +1,4 @@
-FROM node:26.12.1-alpine AS base
+FROM node:26.13.0-alpine AS base
 
 # Node.js 25+ no longer bundles corepack; install it so pnpm is resolved from packageManager
 RUN npm install -g corepack && corepack enable pnpm
