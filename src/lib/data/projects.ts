@@ -5,15 +5,23 @@ import {
   type TrackedProjectDefinition,
 } from "@/config/tracked-projects";
 import { artifactKey } from "@/lib/data/artifacts";
-import { dtGetAll } from "@/lib/dt/client";
-import type { DtProject } from "@/lib/dt/types";
+import {
+  getPortfolio,
+  groupByArtifact,
+  type PortfolioProject,
+} from "@/lib/data/portfolio";
 import { purlNamespace } from "@/lib/purl";
 
-/** Up to 5,000 Dependency-Track projects (one per artifact version). */
-const MAX_PROJECT_PAGES = 50;
+/** Artifacts shown on a project card. */
+const HIGHLIGHT_COUNT = 3;
 
-export type TrackedProjectOverview = Omit<TrackedProjectDefinition, "match"> & {
+export type TrackedProjectOverview = Omit<
+  TrackedProjectDefinition,
+  "match" | "artifactLabel"
+> & {
   artifactCount: number;
+  /** The project's artifacts with the most tracked versions. */
+  highlights: string[];
 };
 
 export type ProjectOverview = {
@@ -22,8 +30,9 @@ export type ProjectOverview = {
   unassignedArtifactCount: number;
 };
 
-function belongsTo(
-  project: DtProject,
+/** Whether a Dependency-Track project (one artifact version) belongs to the tracked project. */
+export function belongsTo(
+  project: PortfolioProject,
   { match }: TrackedProjectDefinition,
 ): boolean {
   const namespace = purlNamespace(project.purl);
@@ -37,19 +46,10 @@ function belongsTo(
 }
 
 export async function getProjectOverview(): Promise<ProjectOverview> {
-  const { items: projects, truncated } = await dtGetAll<DtProject>(
-    "/v1/project",
-    {},
-    { maxPages: MAX_PROJECT_PAGES },
-  );
-  if (truncated) {
-    console.warn(
-      `[projects] Only the first ${projects.length} Dependency-Track projects were counted.`,
-    );
-  }
+  const projects = await getPortfolio();
 
-  const artifactsByProject = new Map(
-    trackedProjects.map((project) => [project.slug, new Set<string>()]),
+  const versionsByProject = new Map(
+    trackedProjects.map((project) => [project.slug, [] as PortfolioProject[]]),
   );
   const unassigned = new Set<string>();
 
@@ -57,18 +57,25 @@ export async function getProjectOverview(): Promise<ProjectOverview> {
     const owner = trackedProjects.find((tracked) =>
       belongsTo(project, tracked),
     );
-    const artifacts = owner ? artifactsByProject.get(owner.slug) : unassigned;
-    artifacts?.add(artifactKey(project));
+    if (owner) versionsByProject.get(owner.slug)?.push(project);
+    else unassigned.add(artifactKey(project));
   }
 
   return {
-    projects: trackedProjects.map((project) => ({
-      slug: project.slug,
-      name: project.name,
-      description: project.description,
-      highlights: project.highlights,
-      artifactCount: artifactsByProject.get(project.slug)?.size ?? 0,
-    })),
+    projects: trackedProjects.map((project) => {
+      const artifacts = groupByArtifact(
+        versionsByProject.get(project.slug) ?? [],
+      );
+      return {
+        slug: project.slug,
+        name: project.name,
+        description: project.description,
+        artifactCount: artifacts.length,
+        highlights: artifacts
+          .slice(0, HIGHLIGHT_COUNT)
+          .map((versions) => versions[0].name),
+      };
+    }),
     unassignedArtifactCount: unassigned.size,
   };
 }

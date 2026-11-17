@@ -1,13 +1,11 @@
 import "server-only";
 
-import { featuredArtifact } from "@/content/landing";
-import {
-  toVulnerabilityCounts,
-  type VulnerabilityCounts,
-} from "@/lib/data/artifacts";
-import { dtGet, dtGetAll } from "@/lib/dt/client";
-import type { DtConciseProject, DtProject } from "@/lib/dt/types";
-import { purlNamespace, purlType } from "@/lib/purl";
+import { toVulnerabilityCounts } from "@/lib/data/artifacts";
+import { getPortfolio, groupByArtifact } from "@/lib/data/portfolio";
+import { dtGet } from "@/lib/dt/client";
+import type { DtConciseProject } from "@/lib/dt/types";
+import { purlType } from "@/lib/purl";
+import type { VulnerabilityCounts } from "@/lib/severity";
 import { latestVersion } from "@/lib/versions";
 
 const ECOSYSTEMS: Record<string, string> = {
@@ -40,30 +38,39 @@ export type PackageReport = {
   severity: VulnerabilityCounts;
 };
 
-/** Report for the latest stable version of the featured artifact, or `null` if it isn't tracked. */
+/**
+ * Report for the featured artifact: of the latest stable version of every
+ * artifact, the one with the most dependencies. `null` if nothing is tracked.
+ */
 export async function getFeaturedPackageReport(): Promise<PackageReport | null> {
-  const { items } = await dtGetAll<DtProject>("/v1/project", {
-    name: featuredArtifact.name,
-    excludeInactive: true,
-  });
-  const versions = items
-    .filter(
-      (project) =>
-        project.name === featuredArtifact.name &&
-        purlNamespace(project.purl) === featuredArtifact.purlNamespace,
-    )
-    .map((project) => ({ ...project, version: project.version ?? "" }));
+  const latestVersions = groupByArtifact(await getPortfolio()).flatMap(
+    (versions) =>
+      latestVersion(
+        versions.map((project) => ({
+          ...project,
+          version: project.version ?? "",
+        })),
+      ) ?? [],
+  );
+  const featured = latestVersions.reduce<
+    (typeof latestVersions)[number] | undefined
+  >(
+    (best, current) =>
+      !best ||
+      (current.metrics?.components ?? 0) > (best.metrics?.components ?? 0)
+        ? current
+        : best,
+    undefined,
+  );
+  if (!featured) return null;
 
-  const latest = latestVersion(versions);
-  if (!latest) return null;
-
-  const metrics = latest.metrics;
-  const type = purlType(latest.purl);
+  const metrics = featured.metrics;
+  const type = purlType(featured.purl);
   return {
-    name: latest.name,
-    version: latest.version,
+    name: featured.name,
+    version: featured.version,
     ecosystem: type ? ECOSYSTEMS[type] : undefined,
-    importedAt: toIsoTimestamp(latest.lastBomImport),
+    importedAt: toIsoTimestamp(featured.lastBomImport),
     dependencies: metrics?.components ?? 0,
     vulnerableDependencies: metrics?.vulnerableComponents ?? 0,
     vulnerabilities: metrics?.vulnerabilities ?? 0,

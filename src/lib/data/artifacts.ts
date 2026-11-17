@@ -2,6 +2,8 @@ import "server-only";
 
 import { dtGetAll } from "@/lib/dt/client";
 import type { DtConciseProject, DtProjectMetrics } from "@/lib/dt/types";
+import { relevance } from "@/lib/relevance";
+import type { VulnerabilityCounts } from "@/lib/severity";
 import type { ArtifactSuggestion } from "@/lib/suggestions";
 import { latestVersion } from "@/lib/versions";
 
@@ -17,13 +19,6 @@ export function artifactKey(project: {
 }): string {
   return `${project.group ?? ""}:${project.name}`;
 }
-
-export type VulnerabilityCounts = {
-  critical: number;
-  high: number;
-  medium: number;
-  low: number;
-};
 
 type ArtifactVersion = {
   uuid: string;
@@ -86,14 +81,6 @@ function groupByArtifact(projects: DtConciseProject[]): ArtifactSearchResult[] {
       ? [{ name, group, latest, versionCount: versions.length }]
       : [];
   });
-}
-
-/** Exact name matches first, then prefix matches, then alphabetical. */
-function relevance(name: string, query: string): number {
-  const normalized = name.toLowerCase();
-  if (normalized === query) return 0;
-  if (normalized.startsWith(query)) return 1;
-  return 2;
 }
 
 function rankArtifacts(

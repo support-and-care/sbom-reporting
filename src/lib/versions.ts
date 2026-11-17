@@ -1,6 +1,7 @@
 const STABLE_VERSION = /^\d+(\.\d+)*$/;
 
-function compareVersions(a: string, b: string): number {
+/** Orders versions numerically, so `3.10.0` sorts after `3.9.9`. */
+export function compareVersions(a: string, b: string): number {
   return a.localeCompare(b, undefined, { numeric: true });
 }
 

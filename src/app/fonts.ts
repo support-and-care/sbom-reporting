@@ -1,4 +1,4 @@
-import { Lato, Montserrat } from "next/font/google";
+import { Lato, Montserrat, Source_Code_Pro } from "next/font/google";
 
 // Google Fonts only ships Lato in 400/700/900; the design's 600 and 800 fall back to the nearest of these.
 export const lato = Lato({
@@ -10,4 +10,10 @@ export const lato = Lato({
 export const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
+});
+
+export const sourceCodePro = Source_Code_Pro({
+  variable: "--font-source-code-pro",
+  subsets: ["latin"],
+  weight: ["400"],
 });

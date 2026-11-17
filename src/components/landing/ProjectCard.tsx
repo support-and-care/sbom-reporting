@@ -17,7 +17,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
       <span className="flex min-h-50 flex-1 flex-col justify-center gap-4 rounded-card border border-neutral-200 px-5 py-3.5 transition-colors group-hover:border-blue-700">
         <span className="text-3xl font-semibold">{project.name}</span>
         <span className="text-xl">{project.description}</span>
-        <span className="text-xl">{project.highlights}</span>
+        {project.highlights.length > 0 && (
+          <span className="text-xl">{project.highlights.join(" · ")}</span>
+        )}
         <span className="text-xl font-bold text-blue-700">
           {formatNumber(project.artifactCount)}{" "}
           {project.artifactCount === 1 ? "artifact" : "artifacts"} →
