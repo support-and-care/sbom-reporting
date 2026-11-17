@@ -42,6 +42,15 @@ function config() {
   return { baseUrl, apiKey };
 }
 
+type RequestOptions = {
+  /**
+   * Marks the current render as dynamic, so report data is read at request
+   * time and never baked in at build time. Only data caches that refresh in
+   * the background, outside a request, turn this off.
+   */
+  dynamic?: boolean;
+};
+
 /**
  * Performs an authenticated GET against the Dependency-Track REST API.
  * The API key is read from the environment and never sent to the browser.
@@ -49,9 +58,9 @@ function config() {
 export async function dtGet<T>(
   path: string,
   query: Record<string, QueryValue> = {},
+  { dynamic = true }: RequestOptions = {},
 ): Promise<DtResponse<T>> {
-  // Report data is read at request time, never baked in at build time.
-  await connection();
+  if (dynamic) await connection();
   const { baseUrl, apiKey } = config();
 
   const url = new URL(`${baseUrl}/api${path}`);
@@ -105,10 +114,13 @@ export async function dtGet<T>(
 export async function dtGetAll<T>(
   path: string,
   query: Record<string, QueryValue> = {},
-  { maxPages = DEFAULT_MAX_PAGES }: { maxPages?: number } = {},
+  {
+    maxPages = DEFAULT_MAX_PAGES,
+    ...options
+  }: RequestOptions & { maxPages?: number } = {},
 ): Promise<{ items: T[]; truncated: boolean }> {
   const fetchPage = (pageNumber: number) =>
-    dtGet<T[]>(path, { ...query, pageNumber, pageSize: PAGE_SIZE });
+    dtGet<T[]>(path, { ...query, pageNumber, pageSize: PAGE_SIZE }, options);
 
   const first = await fetchPage(1);
   const total = first.total ?? first.data?.length ?? 0;

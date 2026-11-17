@@ -25,7 +25,7 @@ export function ArtifactSearchForm({
     >
       <SearchField
         label="Search an artifact"
-        placeholder="search an artifact, e.g. maven-core..."
+        placeholder="search an artifact by name..."
         defaultValue={defaultQuery}
         size={size}
         className="flex-1"
