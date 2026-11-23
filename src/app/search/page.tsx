@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Suspense, type ReactNode } from "react";
+import { pageContainerStyles } from "@/components/layout/pageContainer";
 import { ArtifactSearchForm } from "@/components/search/ArtifactSearchForm";
 import { SearchResults } from "@/components/search/SearchResults";
 import { SearchResultsSkeleton } from "@/components/search/SearchResultsSkeleton";
 import { getExampleArtifactName } from "@/lib/data/portfolio";
 import { loadFromDt } from "@/lib/dt/client";
+import { cn } from "@/lib/utils";
 import { parseSearchParams, type SearchQuery } from "@/lib/search-params";
 
 export const metadata: Metadata = {
@@ -30,9 +32,7 @@ function SearchLayout({
           className="max-w-160"
         />
       </section>
-      <div className="mx-auto mt-16 mb-43 w-full max-w-288 px-6 xl:px-0">
-        {children}
-      </div>
+      <div className={cn(pageContainerStyles, "mt-16 mb-43")}>{children}</div>
     </>
   );
 }

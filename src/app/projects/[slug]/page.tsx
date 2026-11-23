@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { pageContainerStyles } from "@/components/layout/pageContainer";
 import { ArtifactFilterPanel } from "@/components/project/ArtifactFilterPanel";
 import { MostAffectedChart } from "@/components/project/MostAffectedChart";
 import { ProjectBreadcrumb } from "@/components/project/ProjectBreadcrumb";
@@ -18,6 +19,7 @@ import {
   getProjectArtifacts,
 } from "@/lib/data/project-artifacts";
 import { loadFromDt } from "@/lib/dt/client";
+import { cn } from "@/lib/utils";
 import {
   ARTIFACTS_PAGE_SIZE,
   mostAffectedArtifacts,
@@ -39,7 +41,7 @@ export async function generateMetadata({
     : {};
 }
 
-const containerStyles = "mx-auto mt-15 mb-26 w-full max-w-342 px-6";
+const containerStyles = cn(pageContainerStyles, "mt-15 mb-26");
 
 function ProjectDataSkeleton() {
   return (
