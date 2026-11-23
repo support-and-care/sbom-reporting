@@ -1,5 +1,10 @@
 const STABLE_VERSION = /^\d+(\.\d+)*$/;
 
+/** Whether a version is a release, without a qualifier such as `-SNAPSHOT`. */
+export function isStableVersion(version: string): boolean {
+  return STABLE_VERSION.test(version);
+}
+
 /** Orders versions numerically, so `3.10.0` sorts after `3.9.9`. */
 export function compareVersions(a: string, b: string): number {
   return a.localeCompare(b, undefined, { numeric: true });
@@ -12,7 +17,7 @@ export function compareVersions(a: string, b: string): number {
 export function latestVersion<T extends { version: string }>(
   versions: readonly T[],
 ): T | undefined {
-  const stable = versions.filter((v) => STABLE_VERSION.test(v.version));
+  const stable = versions.filter((v) => isStableVersion(v.version));
   const candidates = stable.length > 0 ? stable : versions;
   return candidates.reduce<T | undefined>(
     (latest, current) =>

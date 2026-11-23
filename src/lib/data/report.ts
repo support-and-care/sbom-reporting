@@ -6,7 +6,7 @@ import { dtGet } from "@/lib/dt/client";
 import type { DtConciseProject } from "@/lib/dt/types";
 import { purlType } from "@/lib/purl";
 import type { VulnerabilityCounts } from "@/lib/severity";
-import { latestVersion } from "@/lib/versions";
+import { isStableVersion, latestVersion } from "@/lib/versions";
 
 const ECOSYSTEMS: Record<string, string> = {
   cargo: "Rust",
@@ -39,30 +39,28 @@ export type PackageReport = {
 };
 
 /**
- * Report for the featured artifact: of the latest stable version of every
- * artifact, the one with the most dependencies. `null` if nothing is tracked.
+ * Report for the featured artifact: the latest release of a random artifact
+ * that has one and has known dependencies, picked anew on every request (the
+ * portfolio is read at request time). `null` if nothing is tracked.
  */
 export async function getFeaturedPackageReport(): Promise<PackageReport | null> {
-  const latestVersions = groupByArtifact(await getPortfolio()).flatMap(
-    (versions) =>
-      latestVersion(
+  const candidates = groupByArtifact(await getPortfolio()).flatMap(
+    (versions) => {
+      const latest = latestVersion(
         versions.map((project) => ({
           ...project,
           version: project.version ?? "",
         })),
-      ) ?? [],
+      );
+      return latest &&
+        isStableVersion(latest.version) &&
+        latest.metrics?.components
+        ? [latest]
+        : [];
+    },
   );
-  const featured = latestVersions.reduce<
-    (typeof latestVersions)[number] | undefined
-  >(
-    (best, current) =>
-      !best ||
-      (current.metrics?.components ?? 0) > (best.metrics?.components ?? 0)
-        ? current
-        : best,
-    undefined,
-  );
-  if (!featured) return null;
+  if (candidates.length === 0) return null;
+  const featured = candidates[Math.floor(Math.random() * candidates.length)];
 
   const metrics = featured.metrics;
   const type = purlType(featured.purl);
