@@ -1,14 +1,12 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { FeaturedPackageReport } from "@/components/landing/FeaturedPackageReport";
 import { PackageReportCard } from "@/components/landing/PackageReportCard";
 import { pageContainerStyles } from "@/components/layout/pageContainer";
 import { ArtifactSearchForm } from "@/components/search/ArtifactSearchForm";
 import { routes } from "@/config/site";
-import {
-  getFeaturedPackageReport,
-  getLatestSnapshotDate,
-} from "@/lib/data/report";
+import { getFeaturedPackages, getLatestSnapshotDate } from "@/lib/data/report";
 import { loadFromDt } from "@/lib/dt/client";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -28,11 +26,17 @@ async function SnapshotNote() {
   );
 }
 
-async function FeaturedPackageReport() {
-  const report = await loadFromDt(getFeaturedPackageReport);
+async function FeaturedPackages() {
+  const featured = await loadFromDt(getFeaturedPackages);
+  if (!featured?.reports.length) {
+    return (
+      <PackageReportCard report="unavailable" className={reportCardStyles} />
+    );
+  }
   return (
-    <PackageReportCard
-      report={report ?? "unavailable"}
+    <FeaturedPackageReport
+      reports={featured.reports}
+      initialSlot={featured.slot}
       className={reportCardStyles}
     />
   );
@@ -89,7 +93,7 @@ export function HeroSection() {
             <PackageReportCard report="loading" className={reportCardStyles} />
           }
         >
-          <FeaturedPackageReport />
+          <FeaturedPackages />
         </Suspense>
       </div>
     </section>
