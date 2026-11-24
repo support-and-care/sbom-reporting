@@ -5,6 +5,7 @@ export const cn = createCn({
     theme: {
       radius: ["card", "pill"],
       tracking: ["display"],
+      text: ["caption"],
     },
   },
 });

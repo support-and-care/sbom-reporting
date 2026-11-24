@@ -1,21 +1,12 @@
-import type {
-  ArtifactSearchResult,
-  VulnerabilityCounts,
-} from "@/lib/data/artifacts";
+import type { ArtifactSearchResult } from "@/lib/data/artifacts";
 import { formatNumber } from "@/lib/format";
+import { SEVERITIES, type VulnerabilityCounts } from "@/lib/severity";
 import { cn } from "@/lib/utils";
 
-const severities: (keyof VulnerabilityCounts)[] = [
-  "critical",
-  "high",
-  "medium",
-  "low",
-];
-
 function VulnerabilitySummary({ counts }: { counts: VulnerabilityCounts }) {
-  const parts = severities
-    .filter((severity) => counts[severity] > 0)
-    .map((severity) => `${formatNumber(counts[severity])} ${severity}`);
+  const parts = SEVERITIES.filter((severity) => counts[severity] > 0).map(
+    (severity) => `${formatNumber(counts[severity])} ${severity}`,
+  );
   const isSevere = counts.critical > 0 || counts.high > 0;
 
   return (

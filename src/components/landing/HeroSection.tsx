@@ -1,15 +1,15 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { FeaturedPackageReport } from "@/components/landing/FeaturedPackageReport";
 import { PackageReportCard } from "@/components/landing/PackageReportCard";
+import { pageContainerStyles } from "@/components/layout/pageContainer";
 import { ArtifactSearchForm } from "@/components/search/ArtifactSearchForm";
 import { routes } from "@/config/site";
-import {
-  getFeaturedPackageReport,
-  getLatestSnapshotDate,
-} from "@/lib/data/report";
+import { getFeaturedPackages, getLatestSnapshotDate } from "@/lib/data/report";
 import { loadFromDt } from "@/lib/dt/client";
 import { formatDate } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 const snapshotNoteStyles = "mt-7.5 text-base text-neutral-0";
 const reportCardStyles = "hidden xl:block";
@@ -26,11 +26,17 @@ async function SnapshotNote() {
   );
 }
 
-async function FeaturedPackageReport() {
-  const report = await loadFromDt(getFeaturedPackageReport);
+async function FeaturedPackages() {
+  const featured = await loadFromDt(getFeaturedPackages);
+  if (!featured?.reports.length) {
+    return (
+      <PackageReportCard report="unavailable" className={reportCardStyles} />
+    );
+  }
   return (
-    <PackageReportCard
-      report={report ?? "unavailable"}
+    <FeaturedPackageReport
+      reports={featured.reports}
+      initialSlot={featured.slot}
       className={reportCardStyles}
     />
   );
@@ -39,13 +45,16 @@ async function FeaturedPackageReport() {
 export function HeroSection() {
   return (
     <section className="bg-blue-900 text-neutral-0">
-      <div className="mx-auto flex min-h-147 w-full max-w-360 items-center justify-between gap-10 px-6 py-12 sm:px-15.5 xl:pr-16">
+      <div
+        className={cn(
+          pageContainerStyles,
+          "flex min-h-147 items-center justify-between gap-10 py-12",
+        )}
+      >
         <div className="flex w-full max-w-157 flex-col">
           <h1 className="flex flex-col gap-1 font-display text-4xl font-bold sm:gap-2 sm:text-5xl">
             <span>Know what your</span>
-            <span>
-              software <span className="text-blue-500">depends on.</span>
-            </span>
+            <span>software depends on.</span>
           </h1>
 
           <p className="mt-11.5 max-w-134 text-xl">
@@ -84,7 +93,7 @@ export function HeroSection() {
             <PackageReportCard report="loading" className={reportCardStyles} />
           }
         >
-          <FeaturedPackageReport />
+          <FeaturedPackages />
         </Suspense>
       </div>
     </section>

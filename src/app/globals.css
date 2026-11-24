@@ -15,10 +15,12 @@
   --color-neutral-500: #9d9d9d;
   --color-neutral-600: #818181;
   --color-neutral-700: #666666;
+  --color-neutral-800: #4a4a4a;
   --color-neutral-900: #2f2f2f;
 
   --color-blue-*: initial;
   --color-blue-50: #f7f7ff;
+  --color-blue-100: #e9e9ff;
   --color-blue-200: #cfcffe;
   --color-blue-300: #ababfe;
   --color-blue-500: #6161fd;
@@ -26,7 +28,31 @@
   --color-blue-800: #272791;
   --color-blue-900: #010149;
 
+  /* Cool grays used for secondary text and outlines on the project page. */
+  --color-slate-*: initial;
+  --color-slate-200: #dedfeb;
+  --color-slate-300: #aeb0c4;
+  --color-slate-500: #777987;
+  --color-slate-600: #696b77;
+  --color-slate-700: #555765;
+  --color-slate-900: #30313a;
+
+  /* Severity scale for charts and accents. */
+  --color-severity-critical: #bb1756;
+  --color-severity-high: #fd0177;
+  --color-severity-medium: #8a740f;
+  --color-severity-low: #dccb12;
+
+  /* Severity badges: pale background with dark text, per the design's badge/severity. */
+  --color-severity-high-subtle: #ffe3ef;
+  --color-severity-high-strong: #a3004c;
+  --color-severity-medium-subtle: #fbf3cd;
+  --color-severity-medium-strong: #6a5809;
+  --color-severity-low-subtle: #fefbe8;
+
   /* Figma type styles use the font's natural line height. */
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1rem;
   --text-xs--line-height: normal;
   --text-sm--line-height: normal;
   --text-base--line-height: normal;
@@ -47,6 +73,7 @@
 @theme inline {
   --font-sans: var(--font-lato), Arial, Helvetica, sans-serif;
   --font-display: var(--font-montserrat), var(--font-lato), Arial, sans-serif;
+  --font-mono: var(--font-source-code-pro), ui-monospace, monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

@@ -1,14 +1,13 @@
 import "server-only";
 
-import { featuredArtifact } from "@/content/landing";
-import {
-  toVulnerabilityCounts,
-  type VulnerabilityCounts,
-} from "@/lib/data/artifacts";
-import { dtGet, dtGetAll } from "@/lib/dt/client";
-import type { DtConciseProject, DtProject } from "@/lib/dt/types";
-import { purlNamespace, purlType } from "@/lib/purl";
-import { latestVersion } from "@/lib/versions";
+import { toVulnerabilityCounts } from "@/lib/data/artifacts";
+import { getPortfolio, groupByArtifact } from "@/lib/data/portfolio";
+import { dtGet } from "@/lib/dt/client";
+import type { DtConciseProject } from "@/lib/dt/types";
+import { featuredSlot } from "@/lib/featured";
+import { purlType } from "@/lib/purl";
+import type { VulnerabilityCounts } from "@/lib/severity";
+import { isStableVersion, latestVersion } from "@/lib/versions";
 
 const ECOSYSTEMS: Record<string, string> = {
   cargo: "Rust",
@@ -40,35 +39,49 @@ export type PackageReport = {
   severity: VulnerabilityCounts;
 };
 
-/** Report for the latest stable version of the featured artifact, or `null` if it isn't tracked. */
-export async function getFeaturedPackageReport(): Promise<PackageReport | null> {
-  const { items } = await dtGetAll<DtProject>("/v1/project", {
-    name: featuredArtifact.name,
-    excludeInactive: true,
+export type FeaturedPackages = {
+  /** Rotation slot at request time, see `featuredSlot`. */
+  slot: number;
+  reports: PackageReport[];
+};
+
+/**
+ * Reports of the artifacts the hero can feature: the latest release of every
+ * artifact that has one and has known dependencies, in a stable order.
+ */
+export async function getFeaturedPackages(): Promise<FeaturedPackages> {
+  const portfolio = await getPortfolio();
+  // Reading the portfolio marks the request dynamic, so the clock may be read.
+  const slot = featuredSlot(Date.now());
+  const reports = groupByArtifact(portfolio).flatMap((versions) => {
+    const latest = latestVersion(
+      versions.map((project) => ({
+        ...project,
+        version: project.version ?? "",
+      })),
+    );
+    if (
+      !latest ||
+      !isStableVersion(latest.version) ||
+      !latest.metrics?.components
+    ) {
+      return [];
+    }
+
+    const metrics = latest.metrics;
+    const type = purlType(latest.purl);
+    return {
+      name: latest.name,
+      version: latest.version,
+      ecosystem: type ? ECOSYSTEMS[type] : undefined,
+      importedAt: toIsoTimestamp(latest.lastBomImport),
+      dependencies: metrics.components ?? 0,
+      vulnerableDependencies: metrics.vulnerableComponents ?? 0,
+      vulnerabilities: metrics.vulnerabilities ?? 0,
+      severity: toVulnerabilityCounts(metrics),
+    };
   });
-  const versions = items
-    .filter(
-      (project) =>
-        project.name === featuredArtifact.name &&
-        purlNamespace(project.purl) === featuredArtifact.purlNamespace,
-    )
-    .map((project) => ({ ...project, version: project.version ?? "" }));
-
-  const latest = latestVersion(versions);
-  if (!latest) return null;
-
-  const metrics = latest.metrics;
-  const type = purlType(latest.purl);
-  return {
-    name: latest.name,
-    version: latest.version,
-    ecosystem: type ? ECOSYSTEMS[type] : undefined,
-    importedAt: toIsoTimestamp(latest.lastBomImport),
-    dependencies: metrics?.components ?? 0,
-    vulnerableDependencies: metrics?.vulnerableComponents ?? 0,
-    vulnerabilities: metrics?.vulnerabilities ?? 0,
-    severity: toVulnerabilityCounts(metrics),
-  };
+  return { slot, reports };
 }
 
 /** ISO timestamp of the most recent SBOM import, or `null` if nothing was imported yet. */
