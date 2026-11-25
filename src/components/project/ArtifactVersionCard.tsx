@@ -1,5 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 import { SeverityBadge } from "@/components/project/SeverityBadge";
+import { routes } from "@/config/site";
 import type { ArtifactVersionEntry } from "@/lib/project-artifacts";
 import { SEVERITIES } from "@/lib/severity";
 
@@ -17,7 +19,7 @@ export function ArtifactVersionCard({
   );
 
   return (
-    <article className="flex h-full gap-5 rounded-[1.25rem] bg-blue-50 p-6">
+    <article className="relative flex h-full gap-5 rounded-[1.25rem] bg-blue-50 p-6 has-[a:focus-visible]:ring-[3px] has-[a:focus-visible]:ring-ring/50 has-[a:hover]:bg-blue-100">
       <Image
         src="/images/project/artifact.svg"
         alt=""
@@ -29,7 +31,14 @@ export function ArtifactVersionCard({
         <div className="flex flex-col gap-3.5">
           <div className="flex flex-col gap-2">
             <h3 className="font-display text-base leading-6 font-semibold break-all text-neutral-900">
-              {entry.name}
+              {/* The link covers the whole card. */}
+              <Link
+                href={routes.artifact(entry.name, entry.version)}
+                className="outline-none after:absolute after:inset-0 after:rounded-[1.25rem]"
+              >
+                {entry.name}
+                <span className="sr-only"> {entry.version}</span>
+              </Link>
             </h3>
             <p className="text-caption text-neutral-600">
               {entry.group ?? artifactLabel}

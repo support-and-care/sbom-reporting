@@ -5,6 +5,7 @@ import { getPortfolio, groupByArtifact } from "@/lib/data/portfolio";
 import { dtGet } from "@/lib/dt/client";
 import type { DtConciseProject } from "@/lib/dt/types";
 import { featuredSlot } from "@/lib/featured";
+import { epochToIso } from "@/lib/format";
 import { purlType } from "@/lib/purl";
 import type { VulnerabilityCounts } from "@/lib/severity";
 import { isStableVersion, latestVersion } from "@/lib/versions";
@@ -19,12 +20,6 @@ const ECOSYSTEMS: Record<string, string> = {
   nuget: ".NET",
   pypi: "Python",
 };
-
-function toIsoTimestamp(
-  epochMs: number | null | undefined,
-): string | undefined {
-  return epochMs ? new Date(epochMs).toISOString() : undefined;
-}
 
 export type PackageReport = {
   name: string;
@@ -74,7 +69,7 @@ export async function getFeaturedPackages(): Promise<FeaturedPackages> {
       name: latest.name,
       version: latest.version,
       ecosystem: type ? ECOSYSTEMS[type] : undefined,
-      importedAt: toIsoTimestamp(latest.lastBomImport),
+      importedAt: epochToIso(latest.lastBomImport),
       dependencies: metrics.components ?? 0,
       vulnerableDependencies: metrics.vulnerableComponents ?? 0,
       vulnerabilities: metrics.vulnerabilities ?? 0,
@@ -92,5 +87,5 @@ export async function getLatestSnapshotDate(): Promise<string | null> {
     pageNumber: 1,
     pageSize: 1,
   });
-  return toIsoTimestamp(data?.[0]?.lastBomImport) ?? null;
+  return epochToIso(data?.[0]?.lastBomImport) ?? null;
 }

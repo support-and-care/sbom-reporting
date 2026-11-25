@@ -6,9 +6,11 @@ import { cn } from "@/lib/utils";
 type PaginationProps = {
   page: number;
   pageCount: number;
-  /** URL of a page, so links still open in a new tab. */
-  href: (page: number) => string;
+  /** URL of a page, so links still open in a new tab; buttons without it. */
+  href?: (page: number) => string;
   onSelect: (page: number) => void;
+  /** Names the navigation, e.g. `Artifact pages`. */
+  label?: string;
 };
 
 function PageLink({
@@ -26,6 +28,19 @@ function PageLink({
   children: ReactNode;
   "aria-label": string;
 }) {
+  if (!href) {
+    return (
+      <button
+        type="button"
+        onClick={() => onSelect(page)}
+        className={cn("cursor-pointer", className)}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  }
+
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
     // Let the browser handle new-tab and new-window clicks.
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
@@ -48,6 +63,7 @@ export function Pagination({
   pageCount,
   href,
   onSelect,
+  label = "Artifact pages",
 }: PaginationProps) {
   const step = (target: number, label: string, children: ReactNode) =>
     target < 1 || target > pageCount ? (
@@ -67,10 +83,7 @@ export function Pagination({
     );
 
   return (
-    <nav
-      aria-label="Artifact pages"
-      className="flex items-center gap-4 sm:gap-8.5"
-    >
+    <nav aria-label={label} className="flex items-center gap-4 sm:gap-8.5">
       {step(
         page - 1,
         "Previous page",

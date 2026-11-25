@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { purlNamespace, purlType } from "./purl";
+import { purlNamespace, purlType, purlWithoutVersion } from "./purl";
 
 describe("purlType", () => {
   it("returns the lower-cased type of a purl", () => {
@@ -40,5 +40,20 @@ describe("purlNamespace", () => {
     expect(purlNamespace("pkg:pypi/requests@2.31.0")).toBeUndefined();
     expect(purlNamespace("not-a-purl")).toBeUndefined();
     expect(purlNamespace(null)).toBeUndefined();
+  });
+});
+
+describe("purlWithoutVersion", () => {
+  it("drops version, qualifiers and subpath", () => {
+    expect(
+      purlWithoutVersion(
+        "pkg:maven/org.codehaus.plexus/plexus-utils@4.0.2?type=jar",
+      ),
+    ).toBe("pkg:maven/org.codehaus.plexus/plexus-utils");
+    expect(purlWithoutVersion("pkg:npm/%40angular/core@1.0.0#lib")).toBe(
+      "pkg:npm/%40angular/core",
+    );
+    expect(purlWithoutVersion("pkg:pypi/jinja2")).toBe("pkg:pypi/jinja2");
+    expect(purlWithoutVersion("not-a-purl")).toBeUndefined();
   });
 });

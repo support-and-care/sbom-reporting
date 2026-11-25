@@ -1,3 +1,5 @@
+import type { SbomFormat } from "@/lib/artifact";
+
 export type NavLink = {
   href: string;
   label: string;
@@ -9,6 +11,13 @@ export const routes = {
   sbomExplainer: "/what-is-an-sbom",
   searchSuggestions: "/api/search/suggestions",
   project: (slug: string) => `/projects/${slug}`,
+  /** Page of an artifact, at its latest release unless `version` is given. */
+  artifact: (name: string, version?: string) =>
+    `/artifacts/${encodeURIComponent(name)}${
+      version ? `?version=${encodeURIComponent(version)}` : ""
+    }`,
+  sbom: (uuid: string, format: SbomFormat) =>
+    `/api/sbom/${encodeURIComponent(uuid)}?format=${format}`,
 };
 
 export const siteConfig = {

@@ -27,3 +27,18 @@ export function purlNamespace(
   if (segments.length < 3) return undefined;
   return segments.slice(1, -1).map(decodeURIComponent).join("/");
 }
+
+/**
+ * A Package URL without version, qualifiers and subpath, e.g.
+ * `pkg:maven/org.codehaus.plexus/plexus-utils@4.0.2?type=jar` →
+ * `pkg:maven/org.codehaus.plexus/plexus-utils`, the form Dependency-Track
+ * uses to identify the package an advisory affects.
+ */
+export function purlWithoutVersion(
+  purl: string | null | undefined,
+): string | undefined {
+  if (!purl?.startsWith("pkg:")) return undefined;
+  const [path] = purl.split(/[?#]/);
+  const at = path.lastIndexOf("@");
+  return at > path.indexOf("/") ? path.slice(0, at) : path;
+}
