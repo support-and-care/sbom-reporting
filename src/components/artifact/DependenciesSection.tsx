@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, ChevronDown, GitPullRequest } from "lucide-react";
+import { ArrowUpRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useId, useMemo, useState } from "react";
 import {
@@ -12,6 +12,8 @@ import { SeverityBar } from "@/components/artifact/SeverityBar";
 import {
   FilterMenu,
   NotAvailable,
+  SourceCodeLink,
+  sourceCodeColumnStyles,
   TableSearchField,
 } from "@/components/artifact/TableControls";
 import { Pagination } from "@/components/project/Pagination";
@@ -19,7 +21,12 @@ import {
   compareDependencies,
   filterDependencies,
   describeSeverityCounts,
+  DEPENDENCY_SEVERITIES,
+  dependencySeverityCounts,
+  FINDING_SEVERITY_LABELS,
   licenseOptions,
+  SEVERITY_DESCRIPTIONS,
+  type DependencySeverity,
   paginate,
   totalOf,
   type Dependency,
@@ -57,20 +64,11 @@ function DependencyRow({
           dependency.name
         )}
       </th>
-      <td>
-        {dependency.sourceCodeUrl ? (
-          <a
-            href={dependency.sourceCodeUrl}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={`Source code of ${dependency.name} (opens in a new tab)`}
-            className="inline-flex text-neutral-900 hover:text-blue-700"
-          >
-            <GitPullRequest aria-hidden className="size-6" />
-          </a>
-        ) : (
-          <NotAvailable />
-        )}
+      <td className={sourceCodeColumnStyles}>
+        <SourceCodeLink
+          url={dependency.sourceCodeUrl}
+          componentName={dependency.name}
+        />
       </td>
       <td className="text-[0.9375rem] break-all text-neutral-800">
         {dependency.version}
@@ -113,6 +111,7 @@ export function DependenciesSection({
   dependencies: Dependency[];
 }) {
   const [q, setQ] = useState("");
+  const [severities, setSeverities] = useState<DependencySeverity[]>([]);
   const [licenses, setLicenses] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(PAGE_SIZES[0]);
@@ -123,7 +122,32 @@ export function DependenciesSection({
     () => [...dependencies].sort(compareDependencies),
     [dependencies],
   );
-  const options = useMemo(() => licenseOptions(dependencies), [dependencies]);
+  const licenseChoices = useMemo(
+    () => licenseOptions(dependencies),
+    [dependencies],
+  );
+  const severityCounts = useMemo(
+    () => dependencySeverityCounts(dependencies),
+    [dependencies],
+  );
+  const severityChoices = DEPENDENCY_SEVERITIES.filter(
+    // Unrated findings are rare; offer them only when present.
+    (severity) => severity !== "unassigned" || severityCounts[severity] > 0,
+  ).map((severity) =>
+    severity === "none"
+      ? {
+          value: severity,
+          label: "No vulnerabilities",
+          description: "Dependencies with no known findings",
+          count: severityCounts.none,
+        }
+      : {
+          value: severity,
+          label: FINDING_SEVERITY_LABELS[severity],
+          description: SEVERITY_DESCRIPTIONS[severity],
+          count: severityCounts[severity],
+        },
+  );
   const maxTotal = useMemo(
     () =>
       Math.max(
@@ -135,11 +159,12 @@ export function DependenciesSection({
     [dependencies],
   );
   const matches = useMemo(
-    () => filterDependencies(sorted, { q, licenses }),
-    [sorted, q, licenses],
+    () => filterDependencies(sorted, { q, severities, licenses }),
+    [sorted, q, severities, licenses],
   );
   const current = paginate(matches, page, pageSize);
-  const isFiltered = q.trim() !== "" || licenses.length > 0;
+  const isFiltered =
+    q.trim() !== "" || severities.length > 0 || licenses.length > 0;
 
   function updateFilter(apply: () => void) {
     apply();
@@ -169,9 +194,25 @@ export function DependenciesSection({
               onChange={(value) => updateFilter(() => setQ(value))}
             />
             <FilterMenu
+              name="Severity"
+              all={{
+                label: "All severities",
+                description: "Show every dependency, whatever its findings",
+              }}
+              withIcon
+              options={severityChoices}
+              selected={severities}
+              onChange={(value) => updateFilter(() => setSeverities(value))}
+              className="w-full sm:w-90"
+            />
+            <FilterMenu
               name="Licence"
               placeholder="Licence"
-              options={options}
+              all={{
+                label: "All licences",
+                description: "Show every dependency, whatever its licence",
+              }}
+              options={licenseChoices}
               selected={licenses}
               onChange={(value) => updateFilter(() => setLicenses(value))}
               className="max-w-full sm:max-w-90"
@@ -196,7 +237,9 @@ export function DependenciesSection({
               <thead className={tableHeadStyles}>
                 <tr>
                   <th scope="col">Dependency</th>
-                  <th scope="col">Source code</th>
+                  <th scope="col" className={sourceCodeColumnStyles}>
+                    Source code
+                  </th>
                   <th scope="col">Used version</th>
                   <th scope="col">Latest</th>
                   <th scope="col">License</th>

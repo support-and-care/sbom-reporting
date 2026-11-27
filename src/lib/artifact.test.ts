@@ -3,6 +3,7 @@ import {
   advisorySourceLabel,
   advisoryUrl,
   compareDependencies,
+  dependencySeverityCounts,
   countBySeverity,
   describeSeverityCounts,
   emptySeverityCounts,
@@ -169,9 +170,52 @@ describe("dependencies", () => {
 
   it("filters by licence and name", () => {
     const names = (q: string, licenses: string[]) =>
-      filterDependencies(dependencies, { q, licenses }).map((d) => d.name);
+      filterDependencies(dependencies, { q, severities: [], licenses }).map(
+        (d) => d.name,
+      );
     expect(names("", [UNKNOWN_LICENSE])).toEqual(["classworlds"]);
     expect(names("p", ["Apache-2.0"])).toEqual(["plexus"]);
+  });
+});
+
+describe("dependency severity filter", () => {
+  const dependencies = [
+    dependency("guava", "Apache-2.0", [0, 1, 1, 1]),
+    dependency("plexus", "Apache-2.0", [1, 0, 0, 0]),
+    dependency("bcprov", "Bouncy Castle Licence", [0, 2, 0, 0]),
+    dependency("classworlds", undefined),
+  ];
+  const names = (
+    severities: Parameters<typeof filterDependencies>[1]["severities"],
+    licenses: string[] = [],
+  ) =>
+    filterDependencies(dependencies, { q: "", severities, licenses }).map(
+      (d) => d.name,
+    );
+
+  it("keeps dependencies with any chosen severity", () => {
+    expect(names(["high"])).toEqual(["guava", "bcprov"]);
+    expect(names(["critical", "low"])).toEqual(["guava", "plexus"]);
+  });
+
+  it("keeps dependencies without findings for None", () => {
+    expect(names(["none"])).toEqual(["classworlds"]);
+    expect(names(["none", "critical"])).toEqual(["plexus", "classworlds"]);
+  });
+
+  it("combines with the licence filter", () => {
+    expect(names(["high"], ["Apache-2.0"])).toEqual(["guava"]);
+  });
+
+  it("counts dependencies per option", () => {
+    expect(dependencySeverityCounts(dependencies)).toEqual({
+      critical: 1,
+      high: 2,
+      medium: 1,
+      low: 1,
+      unassigned: 0,
+      none: 1,
+    });
   });
 });
 

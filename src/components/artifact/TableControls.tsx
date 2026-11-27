@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronDown, Funnel, Search } from "lucide-react";
+import { Check, ChevronDown, Funnel, Search, SearchCode } from "lucide-react";
 import { DropdownMenu } from "radix-ui";
 import { menuContentStyles } from "@/components/artifact/VersionMenu";
 import { formatNumber } from "@/lib/format";
@@ -39,6 +39,31 @@ export function TableSearchField({
   );
 }
 
+/** Header and cells of the source code columns, which hold a centred icon. */
+export const sourceCodeColumnStyles = "text-center!";
+
+/** Link to a component's source repository, as an icon. */
+export function SourceCodeLink({
+  url,
+  componentName,
+}: {
+  url: string | undefined;
+  componentName: string;
+}) {
+  if (!url) return <NotAvailable />;
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={`Source code of ${componentName} (opens in a new tab)`}
+      className="inline-flex text-neutral-900 hover:text-blue-700"
+    >
+      <SearchCode aria-hidden className="size-6" />
+    </a>
+  );
+}
+
 /** Placeholder for a missing value in a table cell. */
 export function NotAvailable() {
   return (
@@ -52,17 +77,52 @@ export function NotAvailable() {
 type FilterOption<T extends string> = {
   value: T;
   label: string;
+  description?: string;
   count: number;
 };
+
+const checkboxItemStyles =
+  "group flex cursor-pointer items-center gap-3 px-4 py-2 text-neutral-900 outline-none select-none data-disabled:cursor-default data-disabled:opacity-50 data-highlighted:bg-blue-50";
+
+function OptionText({
+  label,
+  description,
+}: {
+  label: string;
+  description?: string;
+}) {
+  return (
+    <span className="flex min-w-0 flex-1 flex-col">
+      <span className="text-caption font-bold group-data-[state=checked]:text-blue-700">
+        {label}
+      </span>
+      {description && (
+        <span className="text-xs text-slate-500">{description}</span>
+      )}
+    </span>
+  );
+}
+
+function Checkbox() {
+  return (
+    <span className="grid size-4 shrink-0 place-items-center rounded-xs border border-slate-300 bg-neutral-0 group-data-[state=checked]:border-blue-700 group-data-[state=checked]:bg-blue-700">
+      <DropdownMenu.ItemIndicator>
+        <Check aria-hidden strokeWidth={3} className="size-3 text-neutral-0" />
+      </DropdownMenu.ItemIndicator>
+    </span>
+  );
+}
 
 type FilterMenuProps<T extends string> = {
   /** Names the filter for assistive technology, e.g. `Severity`. */
   name: string;
-  /** Trigger text while nothing is selected. */
-  placeholder: string;
+  /** First option, checked while no filter is applied; picking it clears the filter. */
+  all: { label: string; description: string };
   options: FilterOption<T>[];
   selected: T[];
   onChange: (selected: T[]) => void;
+  /** Trigger text while nothing is selected; the `all` label by default. */
+  placeholder?: string;
   /** Shows the funnel icon, as on wide triggers. */
   withIcon?: boolean;
   className?: string;
@@ -74,10 +134,11 @@ type FilterMenuProps<T extends string> = {
  */
 export function FilterMenu<T extends string>({
   name,
-  placeholder,
+  all,
   options,
   selected,
   onChange,
+  placeholder = all.label,
   withIcon = false,
   className,
 }: FilterMenuProps<T>) {
@@ -119,41 +180,35 @@ export function FilterMenu<T extends string>({
           sideOffset={6}
           className={menuContentStyles}
         >
+          <DropdownMenu.CheckboxItem
+            checked={!isActive}
+            onCheckedChange={() => onChange([])}
+            onSelect={(event) => event.preventDefault()}
+            className={checkboxItemStyles}
+          >
+            <Checkbox />
+            <OptionText label={all.label} description={all.description} />
+          </DropdownMenu.CheckboxItem>
           {options.map((option) => (
             <DropdownMenu.CheckboxItem
               key={option.value}
               checked={selected.includes(option.value)}
+              disabled={option.count === 0 && !selected.includes(option.value)}
               onCheckedChange={(checked) => toggle(option.value, checked)}
               // Keep the menu open so several options can be picked.
               onSelect={(event) => event.preventDefault()}
-              className="group flex cursor-pointer items-center gap-3 px-4 py-2 text-caption text-neutral-800 outline-none select-none data-highlighted:bg-blue-50 data-[state=checked]:text-blue-700"
+              className={checkboxItemStyles}
             >
-              <span className="grid size-3.75 shrink-0 place-items-center rounded-xs border border-slate-300 bg-neutral-0 group-data-[state=checked]:border-[1.5px] group-data-[state=checked]:border-blue-700">
-                <DropdownMenu.ItemIndicator>
-                  <Check
-                    aria-hidden
-                    strokeWidth={3}
-                    className="size-2.5 text-blue-700"
-                  />
-                </DropdownMenu.ItemIndicator>
-              </span>
-              <span className="flex-1">{option.label}</span>
-              <span className="text-slate-500">
+              <Checkbox />
+              <OptionText
+                label={option.label}
+                description={option.description}
+              />
+              <span className="text-caption text-slate-500">
                 {formatNumber(option.count)}
               </span>
             </DropdownMenu.CheckboxItem>
           ))}
-          {isActive && (
-            <>
-              <DropdownMenu.Separator className="my-2 h-px bg-neutral-200" />
-              <DropdownMenu.Item
-                onSelect={() => onChange([])}
-                className="flex cursor-pointer items-center px-4 py-2 text-caption font-bold text-blue-700 outline-none select-none data-highlighted:bg-blue-50"
-              >
-                Clear filter
-              </DropdownMenu.Item>
-            </>
-          )}
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

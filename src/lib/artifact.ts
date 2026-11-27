@@ -19,6 +19,15 @@ export const FINDING_SEVERITY_LABELS: Record<FindingSeverity, string> = {
   unassigned: "Unassigned",
 };
 
+/** What each severity means, shown in the severity filters. */
+export const SEVERITY_DESCRIPTIONS: Record<FindingSeverity, string> = {
+  critical: "Easy to exploit; fix immediately",
+  high: "Serious risk; fix in the next release",
+  medium: "Exploitable only under specific conditions",
+  low: "Minor risk with limited impact",
+  unassigned: "Not rated by the advisory yet",
+};
+
 export type SeverityCounts = Record<FindingSeverity, number>;
 
 export function emptySeverityCounts(): SeverityCounts {
@@ -208,18 +217,52 @@ export type Dependency = {
 /** Filter value of dependencies without a licence. */
 export const UNKNOWN_LICENSE = "";
 
+/** Severity filter of dependencies; `none` keeps those without findings. */
+export type DependencySeverity = FindingSeverity | "none";
+
+export const DEPENDENCY_SEVERITIES: readonly DependencySeverity[] = [
+  ...FINDING_SEVERITIES,
+  "none",
+];
+
+export function hasSeverity(
+  dependency: Dependency,
+  severity: DependencySeverity,
+): boolean {
+  return severity === "none"
+    ? totalOf(dependency.vulnerabilities) === 0
+    : dependency.vulnerabilities[severity] > 0;
+}
+
+/** Dependencies matching each severity filter option. */
+export function dependencySeverityCounts(
+  dependencies: readonly Dependency[],
+): Record<DependencySeverity, number> {
+  return Object.fromEntries(
+    DEPENDENCY_SEVERITIES.map((severity) => [
+      severity,
+      dependencies.filter((dependency) => hasSeverity(dependency, severity))
+        .length,
+    ]),
+  ) as Record<DependencySeverity, number>;
+}
+
 export type DependencyQuery = {
   q: string;
+  /** Empty for all; a dependency matches any of them. */
+  severities: DependencySeverity[];
   /** Empty for all licences; `UNKNOWN_LICENSE` for none declared. */
   licenses: string[];
 };
 
 export function filterDependencies(
   dependencies: readonly Dependency[],
-  { q, licenses }: DependencyQuery,
+  { q, severities, licenses }: DependencyQuery,
 ): Dependency[] {
   return dependencies.filter(
     (dependency) =>
+      (severities.length === 0 ||
+        severities.some((severity) => hasSeverity(dependency, severity))) &&
       (licenses.length === 0 ||
         licenses.includes(dependency.license ?? UNKNOWN_LICENSE)) &&
       matches(q, [dependency.name, dependency.group]),

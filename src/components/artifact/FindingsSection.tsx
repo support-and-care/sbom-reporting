@@ -1,11 +1,13 @@
 "use client";
 
-import { ArrowRight, ArrowUpRight, SearchCode } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Suspense, use, useId, useMemo, useState } from "react";
 import { SectionHeading } from "@/components/artifact/SectionHeading";
 import {
   FilterMenu,
   NotAvailable,
+  SourceCodeLink,
+  sourceCodeColumnStyles,
   TableSearchField,
 } from "@/components/artifact/TableControls";
 import { SeverityBadge } from "@/components/project/SeverityBadge";
@@ -16,6 +18,7 @@ import {
   filterFindings,
   FINDING_SEVERITIES,
   FINDING_SEVERITY_LABELS,
+  SEVERITY_DESCRIPTIONS,
   fixLabel,
   type Finding,
   type FindingSeverity,
@@ -99,19 +102,11 @@ function FindingRow({
           {[component.group, component.version].filter(Boolean).join(" · ")}
         </span>
       </td>
-      <td>
-        {finding.sourceCodeUrl ? (
-          <a
-            href={finding.sourceCodeUrl}
-            {...newTab}
-            aria-label={`Source code of ${component.name} (opens in a new tab)`}
-            className="inline-flex text-neutral-900 hover:text-blue-700"
-          >
-            <SearchCode aria-hidden className="size-6" />
-          </a>
-        ) : (
-          <NotAvailable />
-        )}
+      <td className={sourceCodeColumnStyles}>
+        <SourceCodeLink
+          url={finding.sourceCodeUrl}
+          componentName={component.name}
+        />
       </td>
       <td>
         <SeverityBadge severity={finding.severity} />
@@ -192,13 +187,18 @@ export function FindingsSection({ findings, fixes }: FindingsSectionProps) {
             />
             <FilterMenu
               name="Severity"
-              placeholder="All severities"
+              all={{
+                label: "All severities",
+                description: "Show every finding, whatever its severity",
+              }}
               withIcon
               options={FINDING_SEVERITIES.filter(
-                (severity) => counts[severity] > 0,
+                // Unrated findings are rare; offer them only when present.
+                (severity) => severity !== "unassigned" || counts[severity] > 0,
               ).map((severity) => ({
                 value: severity,
                 label: FINDING_SEVERITY_LABELS[severity],
+                description: SEVERITY_DESCRIPTIONS[severity],
                 count: counts[severity],
               }))}
               selected={severities}
@@ -226,7 +226,9 @@ export function FindingsSection({ findings, fixes }: FindingsSectionProps) {
                   <tr>
                     <th scope="col">Finding</th>
                     <th scope="col">Components</th>
-                    <th scope="col">Source code</th>
+                    <th scope="col" className={sourceCodeColumnStyles}>
+                      Source code
+                    </th>
                     <th scope="col">Severity</th>
                     <th scope="col">Affected version</th>
                     <th scope="col">Fix / status</th>
