@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { routes } from "@/config/site";
 import type { ArtifactSearchResult } from "@/lib/data/artifacts";
 import { formatNumber } from "@/lib/format";
 import { SEVERITIES, type VulnerabilityCounts } from "@/lib/severity";
@@ -31,13 +33,19 @@ export function ArtifactResult({ artifact }: ArtifactResultProps) {
   }`;
 
   return (
-    <article className="grid gap-3 rounded-card border border-neutral-200 px-5 py-4 md:grid-cols-[1fr_auto] md:items-center md:gap-8">
+    <article className="relative grid gap-3 rounded-card border border-neutral-200 px-5 py-4 has-[a:focus-visible]:ring-[3px] has-[a:focus-visible]:ring-ring/50 has-[a:hover]:border-blue-700 md:grid-cols-[1fr_auto] md:items-center md:gap-8">
       <div className="flex flex-col gap-1">
         <h2 className="text-2xl font-semibold break-all">
-          {artifact.group && (
-            <span className="text-neutral-600">{artifact.group} : </span>
-          )}
-          {artifact.name}
+          {/* The link covers the whole result. */}
+          <Link
+            href={routes.artifact(artifact.name)}
+            className="outline-none after:absolute after:inset-0 after:rounded-card"
+          >
+            {artifact.group && (
+              <span className="text-neutral-600">{artifact.group} : </span>
+            )}
+            {artifact.name}
+          </Link>
         </h2>
         <p className="text-base text-neutral-700">
           Latest {artifact.latest.version} · {versions}

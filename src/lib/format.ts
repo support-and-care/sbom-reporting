@@ -11,6 +11,13 @@ export function formatNumber(value: number): string {
   return numberFormat.format(value);
 }
 
+/** ISO timestamp of Dependency-Track's epoch milliseconds, if set. */
+export function epochToIso(
+  epochMs: number | null | undefined,
+): string | undefined {
+  return epochMs ? new Date(epochMs).toISOString() : undefined;
+}
+
 export function formatDate(isoDate: string): string {
   return dateFormat.format(new Date(isoDate));
 }

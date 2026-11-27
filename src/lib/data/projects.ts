@@ -17,7 +17,7 @@ const HIGHLIGHT_COUNT = 3;
 
 export type TrackedProjectOverview = Omit<
   TrackedProjectDefinition,
-  "match" | "artifactLabel"
+  "match" | "artifactLabel" | "homepage"
 > & {
   artifactCount: number;
   /** The project's artifacts with the most tracked versions. */

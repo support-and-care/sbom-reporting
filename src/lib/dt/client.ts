@@ -51,15 +51,13 @@ type RequestOptions = {
   dynamic?: boolean;
 };
 
-/**
- * Performs an authenticated GET against the Dependency-Track REST API.
- * The API key is read from the environment and never sent to the browser.
- */
-export async function dtGet<T>(
+/** Authenticated GET that throws `DtApiError` unless the response is OK. */
+async function request(
   path: string,
-  query: Record<string, QueryValue> = {},
-  { dynamic = true }: RequestOptions = {},
-): Promise<DtResponse<T>> {
+  query: Record<string, QueryValue>,
+  accept: string,
+  { dynamic = true }: RequestOptions,
+): Promise<{ response: Response; url: URL }> {
   if (dynamic) await connection();
   const { baseUrl, apiKey } = config();
 
@@ -73,7 +71,7 @@ export async function dtGet<T>(
   let response: Response;
   try {
     response = await fetch(url, {
-      headers: { Accept: "application/json", "X-Api-Key": apiKey },
+      headers: { Accept: accept, "X-Api-Key": apiKey },
       cache: "no-store",
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
@@ -90,6 +88,24 @@ export async function dtGet<T>(
     );
     throw new DtApiError(response.status, url.pathname);
   }
+  return { response, url };
+}
+
+/**
+ * Performs an authenticated GET against the Dependency-Track REST API.
+ * The API key is read from the environment and never sent to the browser.
+ */
+export async function dtGet<T>(
+  path: string,
+  query: Record<string, QueryValue> = {},
+  options: RequestOptions = {},
+): Promise<DtResponse<T>> {
+  const { response, url } = await request(
+    path,
+    query,
+    "application/json",
+    options,
+  );
 
   const total = response.headers.get("X-Total-Count");
   const text = await response.text();
@@ -104,6 +120,18 @@ export async function dtGet<T>(
     throw new DtApiError(response.status, url.pathname);
   }
   return { data, total: total === null ? null : Number(total) };
+}
+
+/**
+ * Performs an authenticated GET and returns the response as is, for content
+ * that is passed through rather than parsed, such as SBOM exports.
+ */
+export async function dtGetRaw(
+  path: string,
+  query: Record<string, QueryValue>,
+  accept: string,
+): Promise<Response> {
+  return (await request(path, query, accept, {})).response;
 }
 
 /**
